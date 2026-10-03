@@ -530,7 +530,10 @@ int_t sys_socketpair(dword_t domain, dword_t type, dword_t protocol, addr_t sock
         return _EINVAL;
 
     int sockets[2];
-    int err = socketpair(domain, type, protocol, sockets);
+    // pass the translated base type: Darwin rejects Linux flag bits
+    // (SOCK_NONBLOCK/SOCK_CLOEXEC) in the socketpair type with EPROTONOSUPPORT.
+    // the flags are applied to the iSH fds afterwards by sock_fd_create.
+    int err = socketpair(real_domain, real_type, protocol, sockets);
     if (err < 0)
         return errno_map();
 
@@ -675,6 +678,10 @@ int_t sys_setsockopt(fd_t sock_fd, dword_t level, dword_t option, addr_t value_a
         return 0;
     // IP_MTU_DISCOVER has no equivalent on Darwin
     if (level == IPPROTO_IP && option == IP_MTU_DISCOVER_)
+        return 0;
+    // IP_RECVERR enables MSG_ERRQUEUE reporting, which we don't implement;
+    // glibc's resolver aborts DNS lookups if this fails, so accept it as a no-op
+    if (level == IPPROTO_IP && option == IP_RECVERR_)
         return 0;
     // TCP_CONGESTION also has no equivalent on Darwin
 #if defined(__APPLE__)

@@ -35,7 +35,7 @@ struct tty *tty_alloc(struct tty_driver *driver, int type, int num) {
 
     tty->termios.iflags = ICRNL_ | IXON_;
     tty->termios.oflags = OPOST_ | ONLCR_;
-    tty->termios.cflags = 0;
+    tty->termios.cflags = 0x30 | 0x80 | 0x200 | 0xf; // CS8 | CREAD | HUPCL | B38400
     tty->termios.lflags = ISIG_ | ICANON_ | ECHO_ | ECHOE_ | ECHOK_ | ECHOCTL_ | ECHOKE_ | IEXTEN_;
     // from include/asm-generic/termios.h
     memcpy(tty->termios.cc, "\003\034\177\025\004\0\1\0\021\023\032\0\022\017\027\026\0\0\0", 19);
@@ -605,6 +605,8 @@ static ssize_t tty_ioctl_size(int cmd) {
     switch (cmd) {
         case TCGETS_: case TCSETS_: case TCSETSF_: case TCSETSW_:
             return sizeof(struct termios_);
+        case TCGETS2_: case TCSETS2_: case TCSETSF2_: case TCSETSW2_:
+            return sizeof(struct termios2_);
         case TIOCGWINSZ_: case TIOCSWINSZ_:
             return sizeof(struct winsize_);
         case TIOCGPGRP_: case TIOCSPGRP_:
@@ -679,6 +681,39 @@ error_no_ctrl_tty:
     return err;
 }
 
+// decode the CBAUD field into a bps value for termios2 (we don't actually use
+// baud rates for anything, this is just to report something sensible)
+static dword_t termios_baud_(struct termios_ *termios) {
+    static const dword_t baud_table[] = {
+        0, 50, 75, 110, 134, 150, 200, 300, 600, 1200, 1800, 2400,
+        4800, 9600, 19200, 38400,
+    };
+    dword_t cbaud = termios->cflags & 0x100f; // CBAUD | CBAUDEX
+    if (cbaud & 0x1000) // CBAUDEX: extended rates, don't bother decoding
+        return 38400;
+    return baud_table[cbaud];
+}
+
+static void termios_to_termios2_(struct termios2_ *t2, struct termios_ *t) {
+    t2->iflags = t->iflags;
+    t2->oflags = t->oflags;
+    t2->cflags = t->cflags;
+    t2->lflags = t->lflags;
+    t2->line = t->line;
+    memcpy(t2->cc, t->cc, sizeof(t->cc));
+    t2->ispeed = t2->ospeed = termios_baud_(t);
+}
+
+static void termios2_to_termios_(struct termios_ *t, struct termios2_ *t2) {
+    t->iflags = t2->iflags;
+    t->oflags = t2->oflags;
+    t->cflags = t2->cflags;
+    t->lflags = t2->lflags;
+    t->line = t2->line;
+    memcpy(t->cc, t2->cc, sizeof(t->cc));
+    // ispeed/ospeed are ignored, baud rates are meaningless here
+}
+
 // These ioctls are separated out because they have to operate on the slave
 // side of a pseudoterminal pair even if the master is specified
 static int tty_mode_ioctl(struct tty *in_tty, int cmd, void *arg) {
@@ -693,6 +728,9 @@ static int tty_mode_ioctl(struct tty *in_tty, int cmd, void *arg) {
         case TCGETS_:
             *(struct termios_ *) arg = tty->termios;
             break;
+        case TCGETS2_:
+            termios_to_termios2_(arg, &tty->termios);
+            break;
         case TCSETSF_:
             tty->bufsize = 0;
             notify(&tty->consumed);
@@ -701,6 +739,15 @@ static int tty_mode_ioctl(struct tty *in_tty, int cmd, void *arg) {
             // we have no output buffer currently
         case TCSETS_:
             tty->termios = *(struct termios_ *) arg;
+            break;
+        case TCSETSF2_:
+            tty->bufsize = 0;
+            notify(&tty->consumed);
+            fallthrough;
+        case TCSETSW2_:
+            // we have no output buffer currently
+        case TCSETS2_:
+            termios2_to_termios_(&tty->termios, arg);
             break;
 
         case TIOCGWINSZ_:

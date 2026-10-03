@@ -190,6 +190,7 @@ static inline int sock_flags_from_real(int real) {
 #define IP_HDRINCL_ 3
 #define IP_RETOPTS_ 7
 #define IP_MTU_DISCOVER_ 10
+#define IP_RECVERR_ 11
 #define IP_RECVTTL_ 12
 #define IP_RECVTOS_ 13
 #define TCP_NODELAY_ 1

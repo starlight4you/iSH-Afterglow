@@ -152,6 +152,11 @@ static void halt_system(void) {
         int tasks_found = 0;
         for (int i = 2; i < MAX_PID; i++) {
             struct task *task = pid_get_task(i);
+            // skip tasks that are mid-exit (sighand already released) and
+            // non-leader threads (signalling the leader covers the group)
+            if (task != NULL && (task->sighand == NULL || task->exiting ||
+                        (task->group != NULL && task->group->leader != task)))
+                task = NULL;
             if (task != NULL) {
                 tasks_found++;
                 switch (state) {
