@@ -1,3 +1,15 @@
+# iSH-Afterglow
+
+**在 iSH(iOS 的 x86 用户态模拟器)上运行 [AOSC 星霞 OS(Afterglow)](https://aosc.io/afterglow) 的完整方案**:
+裁剪好的 rootfs 制作工具、最小 init、iSH 兼容性补丁(6 个),以及打包/模拟器/真机的构建说明。
+
+- 裁剪方案与研究报告: **[afterglow/README.md](afterglow/README.md)**
+- rootfs 裁剪脚本与最小 init: [afterglow/](afterglow/)
+- 构建好的 rootfs(tar.gz,App 可直接导入):见 [Releases](../../releases)
+- iSH 侧补丁见最近 4 个提交(futex/termios2/socketpair/DNS/退出竞争)
+
+---
+
 # [iSH](https://ish.app)
 
 [![Build Status](https://github.com/ish-app/ish/actions/workflows/ci.yml/badge.svg)](https://github.com/ish-app/ish/actions)
