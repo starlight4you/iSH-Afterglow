@@ -103,5 +103,12 @@ NSArray<NSString *> *CurrentAppGroups(void) {
 
 NSURL *ContainerURL(void) {
     NSString *appGroup = CurrentAppGroups()[0];
-    return [NSFileManager.defaultManager containerURLForSecurityApplicationGroupIdentifier:appGroup];
+    NSURL *url = [NSFileManager.defaultManager containerURLForSecurityApplicationGroupIdentifier:appGroup];
+    if (url == nil) {
+        // Unsigned or simulator builds can't get a group container; fall back to
+        // the app's own container so the app remains usable.
+        url = [NSFileManager.defaultManager URLsForDirectory:NSApplicationSupportDirectory
+                                                   inDomains:NSUserDomainMask].firstObject;
+    }
+    return url;
 }
