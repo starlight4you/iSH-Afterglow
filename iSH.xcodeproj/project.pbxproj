@@ -1850,7 +1850,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = "/bin/sh -e";
-			shellScript = "python3 $SRCROOT/app/gen_apk_repositories.py\n";
+			shellScript = "python3 \"$SRCROOT/app/gen_apk_repositories.py\"\n";
 		};
 		BB13F813200AEFAC003D1C4D /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -1898,7 +1898,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = "/bin/sh -e";
-			shellScript = "cd $SRCROOT/deps/libapps\n./hterm/bin/mkdist\n";
+			shellScript = "cd \"$SRCROOT/deps/libapps\"\n./hterm/bin/mkdist\n";
 			showEnvVarsInLog = 0;
 		};
 		BB4A922A24ED9421002F5A96 /* Add icons to Info.plist */ = {
@@ -1949,7 +1949,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "curl -L \"https://$ROOTFS_URL\" -o \"$BUILT_PRODUCTS_DIR/$CONTENTS_FOLDER_PATH/root.tar.gz\"\n";
+			shellScript = "if [ -f \"$SRCROOT/../afterglow-ish.tar.gz\" ]; then cp \"$SRCROOT/../afterglow-ish.tar.gz\" \"$BUILT_PRODUCTS_DIR/$CONTENTS_FOLDER_PATH/root.tar.gz\"; else curl -L \"https://$ROOTFS_URL\" -o \"$BUILT_PRODUCTS_DIR/$CONTENTS_FOLDER_PATH/root.tar.gz\"; fi\n";
 			showEnvVarsInLog = 0;
 		};
 		BBEF197A268066D1001225BD /* Generate APK Repositories File */ = {
@@ -1972,7 +1972,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = "/bin/sh -e";
-			shellScript = "python3 $SRCROOT/app/gen_apk_repositories.py\n";
+			shellScript = "python3 \"$SRCROOT/app/gen_apk_repositories.py\"\n";
 		};
 		BBEF197B268066D1001225BD /* Compile JavaScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -1988,7 +1988,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = "/bin/sh -e";
-			shellScript = "cd $SRCROOT/deps/libapps\n./hterm/bin/mkdist\n";
+			shellScript = "cd \"$SRCROOT/deps/libapps\"\n./hterm/bin/mkdist\n";
 			showEnvVarsInLog = 0;
 		};
 		BBF1248B1FA7BF530088FB50 /* Download Root */ = {
@@ -2004,7 +2004,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "curl -L \"https://$ROOTFS_URL\" -o \"$BUILT_PRODUCTS_DIR/$CONTENTS_FOLDER_PATH/root.tar.gz\"\n";
+			shellScript = "if [ -f \"$SRCROOT/../afterglow-ish.tar.gz\" ]; then cp \"$SRCROOT/../afterglow-ish.tar.gz\" \"$BUILT_PRODUCTS_DIR/$CONTENTS_FOLDER_PATH/root.tar.gz\"; else curl -L \"https://$ROOTFS_URL\" -o \"$BUILT_PRODUCTS_DIR/$CONTENTS_FOLDER_PATH/root.tar.gz\"; fi\n";
 			showEnvVarsInLog = 0;
 		};
 		BBFB2C572590257E00545EAB /* ShellScript */ = {
